@@ -1,5 +1,5 @@
 export Variable
-export set_min!, set_max!, set_bounds!, set_vary!
+export set_min!, set_max!, set_bounds!, set_value_and_bound!, set_vary!
 export array_variable
 export scalar_variable
 
@@ -22,6 +22,9 @@ vary(v :: Variable) = v.vary
 const VariableGroup = Dict{Symbol,Union{Variable,AbstractArray{Variable}}}
 const VariableContainer = Union{Variable,AbstractArray{Variable},VariableGroup}
 
+function set_value!(v :: Variable, x :: Real)
+    v.value = x
+end
 function set_min!(v :: Variable, x :: Real)
     v.min = x
 end
@@ -32,8 +35,19 @@ function set_bounds!(v :: Variable, x :: Real, y :: Real)
     set_min!(v, x)
     set_max!(v, y)
 end
+function set_value_and_bounds!(v :: Variable, x :: Real, y :: Real, z :: Real)
+    set_value!(v, x)
+    set_min!(v, y)
+    set_max!(v, z)
+end
 function set_vary!(v :: Variable, x :: Bool)
     v.vary = x
+end
+
+##########
+
+function randomize(v :: Variable)
+    set_value!(v, rand() * (max(v) - min(v)) + min(v))
 end
 
 ##########
