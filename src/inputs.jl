@@ -1,5 +1,7 @@
 export ModelInputs
-export add_function
+export add_function!
+export add_constraint!
+export build_apply_function
 export build_nlopt_objective
 
 
@@ -21,23 +23,23 @@ mutable struct ModelInputs
         return new([], [], Dict(), 0)
     end
 end
-inputs_functions(m :: ModelInputs) = m.input_functions
+input_functions(m :: ModelInputs) = m.input_functions
 constraints(m :: ModelInputs) = m.constraints
 variable_map(m :: ModelInputs) = m.variable_map
 variable_count(m :: ModelInputs) = m.variable_count
 
-function inc_variable_count(m :: ModelInputs)
-    m.variable_count = m.variable_count + 1
+function inc_variable_count!(m :: ModelInputs)
+    m.variable_count = variable_count(m) + 1
 end
 
 function safely_add_variable(m :: ModelInputs, v :: Variable)
     if !(v in keys(variable_map(m)))
-        inc_variable_count(m)
+        inc_variable_count!(m)
         variable_map(m)[v] = variable_count(m)
     end
 end
 
-function add_function(m :: ModelInputs, i :: InputFunction)
+function add_function!(m :: ModelInputs, i :: InputFunction)
     vars = collect_variables(variables(i))
     for var in vars
         safely_add_variable(m, var)
@@ -45,9 +47,17 @@ function add_function(m :: ModelInputs, i :: InputFunction)
     m.input_functions = vcat(m.input_functions, i)
 end
 
-function build_nlopt_objective(a :: AbstractModel, m :: ModelInputs)
-    functions_to_apply = []
+function add_constraint!(m :: ModelInputs, con :: AbstractConstraint)
+    push!(m.constraints, con)
+end
+
+function collect_vary_variables(m :: ModelInputs)
+
+    # Empty lists of the variables being collected, and their corresponding functions.
     vary_vars = []
+    functions_to_apply = []
+
+    # Strip out varying variables and record the functions that need to be applied.
     for i in input_functions(m)
         new_vars = collect_variables(variables(i); only_vary=true)
         if length(new_vars) > 0
@@ -56,15 +66,25 @@ function build_nlopt_objective(a :: AbstractModel, m :: ModelInputs)
         end
     end
 
-    function f(x :: Vector, g)
-        for var in 1:length(var_vars)
-            var_idx = variable_map(m)[var]
-            set_value(var, x[var_idx])
-        end
-        for i in functions_to_apply
-            func(i)(a, variables(i))
-        end
-    end
+    return vary_vars, functions_to_apply
+end
 
-    return f, length(vary_vars)
+function get_bounds(m :: ModelInputs)
+
+    vary_vars, _ = collect_vary_variables(m)
+    bounds = map(x -> [min(x), max(x)], vary_vars)
+
+    return collect(zip(bounds...))
+end
+
+function get_values(m :: ModelInputs)
+
+    vary_vars, _ = collect_vary_variables(m)
+
+    return value.(vary_vars)
+end
+
+function set_values!(m :: ModelInputs, x :: Vector{<:Real})
+    vary_vars, _ = collect_vary_variables(m)
+    set_value!.(vary_vars, x)
 end

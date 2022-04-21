@@ -1,4 +1,5 @@
 export InputFunction
+export apply!
 
 
 struct InputFunction
@@ -7,3 +8,7 @@ struct InputFunction
 end
 variables(i :: InputFunction) = i.variables
 func(i :: InputFunction) = i.func
+
+function apply!(a :: AbstractModel, i :: InputFunction)
+    func(i)(a, variables(i))
+end

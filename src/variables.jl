@@ -1,7 +1,9 @@
 export Variable
-export set_min!, set_max!, set_bounds!, set_value_and_bound!, set_vary!
+export value, min, max, vary
+export set_value!, set_min!, set_max!, set_bounds!, set_value_and_bounds!, set_vary!
+export randomize!
 export array_variable
-export scalar_variable
+export collect_variables
 
 
 mutable struct Variable
@@ -9,15 +11,15 @@ mutable struct Variable
     min :: Real
     max :: Real
     vary :: Bool
-
-    function Variable(v)
-        return new(v, v, v, false)
-    end
 end
 value(v :: Variable) = v.value
 min(v :: Variable) = v.min
 max(v :: Variable) = v.max
 vary(v :: Variable) = v.vary
+
+function Variable(v)
+    return Variable(v, v, v, false)
+end
 
 const VariableGroup = Dict{Symbol,Union{Variable,AbstractArray{Variable}}}
 const VariableContainer = Union{Variable,AbstractArray{Variable},VariableGroup}
@@ -46,7 +48,7 @@ end
 
 ##########
 
-function randomize(v :: Variable)
+function randomize!(v :: Variable)
     set_value!(v, rand() * (max(v) - min(v)) + min(v))
 end
 
@@ -57,10 +59,6 @@ function array_variable(; kwargs...)
     z = zeros(size_tuple...)
     v = Variable.(z)
     return AxisArray(v; kwargs...)
-end
-
-function scalar_variable()
-    return Variable(0.0)
 end
 
 ##########

@@ -1,4 +1,3 @@
 abstract type AbstractModel end
 
-function evaluate(:: AbstractModel) end
-
+function compute_loss(:: AbstractModel) end
