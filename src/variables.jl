@@ -1,8 +1,9 @@
 export Variable
-export value, min, max, vary
+# export value, min, max, vary
 export set_value!, set_min!, set_max!, set_bounds!, set_value_and_bounds!, set_vary!
 export randomize!
-export array_variable
+export variable_from_value
+export empty_array_variable
 export collect_variables
 
 
@@ -16,10 +17,6 @@ value(v :: Variable) = v.value
 min(v :: Variable) = v.min
 max(v :: Variable) = v.max
 vary(v :: Variable) = v.vary
-
-function Variable(v)
-    return Variable(v, v, v, false)
-end
 
 const VariableGroup = Dict{Symbol,Union{Variable,AbstractArray{Variable}}}
 const VariableContainer = Union{Variable,AbstractArray{Variable},VariableGroup}
@@ -54,11 +51,19 @@ end
 
 ##########
 
-function array_variable(; kwargs...)
+function variable_from_value(v :: Real; vary=true)
+    return Variable(v, v, v, vary)
+end
+
+function variable_from_value(v :: AxisArray{<:Real}; vary=true)
+    w = variable_from_value.(v; vary=vary)
+    return AxisArray(w, AxisArrays.axes(v))
+end
+
+function empty_array_variable(vary :: Bool; kwargs...)
     size_tuple = length.(i for i in values(kwargs))
     z = zeros(size_tuple...)
-    v = Variable.(z)
-    return AxisArray(v; kwargs...)
+    return variable_from_value(AxisArray(z; kwargs...); vary=vary)
 end
 
 ##########

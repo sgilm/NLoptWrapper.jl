@@ -1,8 +1,12 @@
 export ModelInputs
 export add_function!
 export add_constraint!
+export collect_vary_variables
 export build_apply_function
 export build_nlopt_objective
+
+export get_bounds
+export get_values
 
 
 mutable struct ModelInputs
