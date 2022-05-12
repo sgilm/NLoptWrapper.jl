@@ -2,7 +2,7 @@ using AxisArrays
 using Test
 
 using Revise
-using NLOptWrapper
+using NLoptWrapper
 
 include("variables.jl")
 include("inputs.jl")

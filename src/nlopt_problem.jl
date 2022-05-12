@@ -1,25 +1,25 @@
-export NLOptProblem
+export NLoptProblem
 export model, inputs
 export update_model!
 export solve!
 
 
-struct NLOptProblem
+struct NLoptProblem
     model :: AbstractModel
     inputs :: ModelInputs
 end
-model(P :: NLOptProblem) = P.model
-inputs(P :: NLOptProblem) = P.inputs
+model(P :: NLoptProblem) = P.model
+inputs(P :: NLoptProblem) = P.inputs
 
-function compute_loss(:: NLOptProblem) end
+function compute_loss(:: NLoptProblem) end
 
-function update_model!(P :: NLOptProblem)
+function update_model!(P :: NLoptProblem)
     for i in input_functions(inputs(P))
         apply!(model(P), i)
     end
 end
 
-function build_apply_function(P :: NLOptProblem)
+function build_apply_function(P :: NLoptProblem)
 
     vary_vars, functions_to_apply = collect_vary_variables(inputs(P))
 
@@ -36,7 +36,7 @@ function build_apply_function(P :: NLOptProblem)
     return apply_function!, length(vary_vars)
 end
 
-function solve!(P :: NLOptProblem; max_evals=max_evals)
+function solve!(P :: NLoptProblem; max_evals=max_evals)
 
     update_model!(P)
     apply_function!, n = build_apply_function(P)

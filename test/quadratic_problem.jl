@@ -1,4 +1,4 @@
-mutable struct QuadraticModel <: NLOptWrapper.AbstractModel
+mutable struct QuadraticModel <: NLoptWrapper.AbstractModel
     a :: Real
     b :: Real
     c :: Real
@@ -7,7 +7,7 @@ function evaluate(c :: QuadraticModel, x_vals :: Vector{<:Real})
     f(x) = c.a * x ^ 2 + c.b * x + c.c
     return f.(x_vals)
 end
-function NLOptWrapper.compute_loss(c :: QuadraticModel)
+function NLoptWrapper.compute_loss(c :: QuadraticModel)
     ref_x = [1, 2, 3]
 
     true_model = QuadraticModel(1, 4, 2)

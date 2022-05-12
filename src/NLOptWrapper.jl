@@ -1,4 +1,4 @@
-module NLOptWrapper
+module NLoptWrapper
 
 using AxisArrays
 using NLopt
