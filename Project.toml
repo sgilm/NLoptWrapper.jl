@@ -1,4 +1,4 @@
-name = "NLOptWrapper"
+name = "NLoptWrapper"
 uuid = "d8b04d90-21b8-41cd-8402-595b9553743e"
 authors = ["Sam Gilmour <sgilmour@mit.edu> and contributors"]
 version = "0.1.0"
