@@ -41,14 +41,22 @@ function solve!(P :: NLoptProblem; max_evals=max_evals)
     update_model!(P)
     apply_function!, n = build_apply_function(P)
     
+    eval_count = 0
     function nlopt_obj!(x :: Vector, :: Any)
+        
+        # Wrap in try/catch to return any errors from the model function.
         try
         
-            # Update model.
+            # Update the model, then compute the loss.
             apply_function!(x)
-            x = compute_loss(P)
-            println(x)
-            return x
+            loss = compute_loss(P)
+            eval_count += 1
+
+            if eval_count % (max_evals ÷ 10) == 1
+                @info "$eval_count evaluation(s): objective = $loss"
+            end
+            
+            return loss
 
         catch e
             bt = catch_backtrace()
